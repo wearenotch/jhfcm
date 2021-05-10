@@ -180,3 +180,6 @@ jhipster:
 # ===================================================================
 
 # application:
+jhfcm:
+  fcm:
+    sa-json-file: firebase-service-account.json
