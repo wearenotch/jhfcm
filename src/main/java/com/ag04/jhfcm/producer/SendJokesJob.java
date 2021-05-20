@@ -1,7 +1,5 @@
 package com.ag04.jhfcm.producer;
 import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
@@ -24,8 +23,10 @@ import kong.unirest.Unirest;
  * 
  * @author dmadunic
  */
+@Component
 public class SendJokesJob {
     private static final Logger log = LoggerFactory.getLogger(SendJokesJob.class);
+    private static final String MSG_TTL = "300"; // seconds
 
     @Value("${jhfcm.fcm.topic.jokes}")
     private String jokeTopic;
@@ -34,8 +35,6 @@ public class SendJokesJob {
     
     private final FirebaseMessaging firebaseMessaging;
     
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
-
     public SendJokesJob(FirebaseMessaging firebaseMessaging) {
         this.firebaseMessaging = firebaseMessaging;
     }
@@ -49,13 +48,12 @@ public class SendJokesJob {
         Map<String, String> data = new HashMap<>();
         data.put("id", id);
         data.put("seq", String.valueOf(this.count));
-        data.put("time", ZonedDateTime.now().format(formatter));
         data.put("joke", joke);
-        data.put("ts", String.valueOf(Instant.now()));
+        data.put("ts", String.valueOf(Instant.now())); // message timestamp
         try {
-            log.debug("--> Sending FCM message to topic='{}' wiht data={}", jokeTopic, data);
+            log.debug("--> Sending FCM message (id={}) to topic='{}'", id, jokeTopic);
             String messageId = sendDataMessage(data, jokeTopic);
-            log.info("--> FCM message sent wiht id={}", messageId);
+            log.info("--> FCM message sent to topic='{}' wiht messageId={}", jokeTopic, messageId);
         } catch (FirebaseMessagingException e) {
             log.error("FAILED to send chuck joke message:", e);
         }
@@ -68,7 +66,7 @@ public class SendJokesJob {
             .putAllData(data)
             .setWebpushConfig(WebpushConfig
                 .builder()
-                .putHeader("ttl", "300")
+                .putHeader("ttl", MSG_TTL)
                 .build()
         ).build();
         String messageId = firebaseMessaging.send(message);

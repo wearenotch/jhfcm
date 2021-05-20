@@ -1,7 +1,10 @@
 package com.ag04.jhfcm.config;
 
-import com.ag04.jhfcm.security.*;
-import com.ag04.jhfcm.security.jwt.*;
+import com.ag04.jhfcm.security.AuthoritiesConstants;
+import com.ag04.jhfcm.security.jwt.JWTConfigurer;
+import com.ag04.jhfcm.security.jwt.TokenProvider;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
@@ -17,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
+
 import tech.jhipster.config.JHipsterProperties;
 
 @EnableWebSecurity
@@ -30,6 +34,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final CorsFilter corsFilter;
     private final SecurityProblemSupport problemSupport;
+
+    @Value("${jhfcm.fcm.project-id}")
+    private String fcmProjectId;
 
     public SecurityConfiguration(
         TokenProvider tokenProvider,
@@ -63,6 +70,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
+
+        String securityPolicy = "default-src 'self'; frame-src 'self' data:;" +
+            " script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com " + 
+            " https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js " + 
+            " https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js;" + 
+            " connect-src * 'self' https://firebaseinstallations.googleapis.com/v1/" +
+            " https://fcmregistrations.googleapis.com/v1/projects/" + fcmProjectId + "/registrations" +
+            " https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js" +
+            " https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js;" +
+            " style-src * 'self' 'unsafe-inline';" +
+            " img-src * 'self' data:;" +
+            " font-src * 'self' data:";
+
         // @formatter:off
         http
             .csrf()
@@ -73,7 +93,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler(problemSupport)
         .and()
             .headers()
-            .contentSecurityPolicy(jHipsterProperties.getSecurity().getContentSecurityPolicy())
+            .contentSecurityPolicy(securityPolicy)
+            //.contentSecurityPolicy(jHipsterProperties.getSecurity().getContentSecurityPolicy())
         .and()
             .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
         .and()

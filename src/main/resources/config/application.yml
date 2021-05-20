@@ -182,4 +182,8 @@ jhipster:
 # application:
 jhfcm:
   fcm:
+    topic:
+      jokes: chuck-jokes
     sa-json-file: firebase-service-account.json
+    project-id: jh-lab-5417a
+    

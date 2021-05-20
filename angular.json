@@ -23,6 +23,7 @@
             "assets": [
               "src/main/webapp/content",
               "src/main/webapp/favicon.ico",
+              "src/main/webapp/firebase-messaging-sw.js",
               "src/main/webapp/manifest.webapp",
               "src/main/webapp/robots.txt",
               {
