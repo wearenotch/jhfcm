@@ -1,9 +1,20 @@
+<jhi-alert-error></jhi-alert-error>
+<jhi-alert></jhi-alert>
+
 <div class="row">
-  <div class="col-md-3">
+  <div class="col-md-4">
     <span class="hipster img-fluid rounded"></span>
+    <br/>
+    <div>
+      <p class="font-weight-italics">{{latestJoke.joke}}</p>
+      <p class="font-weight-light">{{latestJoke.time}}</p>
+    </div>
+    <br/>
+    <button type="button" class="btn btn-primary" (click)="subscribeToJokes()">Subscribe</button>
+    <button type="button" class="btn btn-secondary" (click)="unsubscribeFromJokes()">Unsubscribe</button>
   </div>
 
-  <div class="col-md-9">
+  <div class="col-md-8">
     <h1 class="display-4">Welcome, Java Hipster!</h1>
 
     <p class="lead">This is your homepage</p>

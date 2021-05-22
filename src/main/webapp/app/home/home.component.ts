@@ -4,6 +4,8 @@ import { Subscription } from 'rxjs';
 
 import { AccountService } from 'app/core/auth/account.service';
 import { Account } from 'app/core/auth/account.model';
+import { FcmService } from 'app/firebase/fcm.service'
+import { Joke } from 'app/firebase/joke.model';
 
 @Component({
   selector: 'jhi-home',
@@ -13,11 +15,19 @@ import { Account } from 'app/core/auth/account.model';
 export class HomeComponent implements OnInit, OnDestroy {
   account: Account | null = null;
   authSubscription?: Subscription;
+  latestJoke  = new Joke(-1, "Latest Chuck joke... (comming soon)", 0, undefined);
 
-  constructor(private accountService: AccountService, private router: Router) {}
+  private subscription$: Subscription | null = null;
+
+  constructor(private accountService: AccountService, private router: Router, private fcmService: FcmService) {}
 
   ngOnInit(): void {
     this.authSubscription = this.accountService.getAuthenticationState().subscribe(account => (this.account = account));
+    this.subscription$ = this.fcmService.getJokes().subscribe(joke => {
+      // eslint-disable-next-line no-console
+      console.log('--> Latest Joke:', joke.joke);
+      this.latestJoke = joke;
+    });
   }
 
   isAuthenticated(): boolean {
@@ -33,4 +43,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.authSubscription.unsubscribe();
     }
   }
+
+  // --- FCM methods -----------------------------------------------------------
+
+  subscribeToJokes(): void {
+    this.fcmService.subscribeToJokeTopic();
+  }
+
+  unsubscribeFromJokes(): void {
+    this.fcmService.unsubscribeFromJokeTopic();
+  }
+
 }
