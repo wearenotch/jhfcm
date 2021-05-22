@@ -1,5 +1,7 @@
 # jhfcm
-Jhipster demo app for Firebase cloud messageing integration.
+Jhipster Angular/Spring boot demo app for Firebase cloud messageing integration.
+
+![Jhfcm Demo app](./assets/final-result.png)
 
 This application was generated using JHipster 7.0.1, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.0.1](https://www.jhipster.tech/documentation-archive/v7.0.1).
 
