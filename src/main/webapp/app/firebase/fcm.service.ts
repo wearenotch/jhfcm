@@ -9,17 +9,14 @@ import { IJoke, Joke } from 'app/firebase/joke.model';
 import { publicVapidKey } from 'app/firebase/firebase.constants';
 import { ITopicSubscriptionResult } from 'app/firebase/topic-subscription-result.model';
 
-export enum TopicOperation {
-  SUBSCRIBE,
-  UNSUBSCRIBE
-}
 
 @Injectable({ providedIn: 'root' })
 export class FcmService {
   public resourceUrl = SERVER_API_URL + 'api/fcm/registration';
   fcmToken!: string | null;
 
-  private jokes = new Subject<IJoke>();
+  // storage for FCM messages ...
+  public jokes = new Subject<IJoke>();
 
   constructor(
     protected http: HttpClient,
@@ -33,10 +30,6 @@ export class FcmService {
       const joke = new Joke(message['data'].id, message['data'].joke, message['data'].seq, message['data'].ts);
       this.jokes.next(joke)
     });
-  }
-
-  getJokes(): Observable<IJoke> {
-    return this.jokes.asObservable();
   }
 
   getFcmToken(): void {
